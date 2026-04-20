@@ -1,0 +1,97 @@
+@page "/login"
+@using GoodHamburger.Web.Models
+@using GoodHamburger.Web.Services
+@inject AuthStateService Auth
+@inject NavigationManager Nav
+
+<PageTitle>Login</PageTitle>
+
+<div class="row justify-content-center mt-5">
+    <div class="col-md-5">
+        <div class="card">
+            <div class="card-header">
+                <ul class="nav nav-tabs card-header-tabs">
+                    <li class="nav-item">
+                        <button class="nav-link @(isLogin ? "active" : "")" @onclick="() => isLogin = true">Login</button>
+                    </li>
+                    <li class="nav-item">
+                        <button class="nav-link @(!isLogin ? "active" : "")" @onclick="() => isLogin = false">Cadastro</button>
+                    </li>
+                </ul>
+            </div>
+            <div class="card-body">
+                @if (errorMessage is not null)
+                {
+                    <div class="alert alert-danger">@errorMessage</div>
+                }
+
+                @if (isLogin)
+                {
+                    <h5 class="card-title">🔑 Entrar</h5>
+                    <div class="mb-3">
+                        <label class="form-label">E-mail</label>
+                        <input type="email" class="form-control" @bind="loginModel.Email" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Senha</label>
+                        <input type="password" class="form-control" @bind="loginModel.Password" />
+                    </div>
+                    <button class="btn btn-primary w-100" @onclick="DoLogin" disabled="@loading">
+                        @(loading ? "Entrando..." : "Entrar")
+                    </button>
+                }
+                else
+                {
+                    <h5 class="card-title">📝 Criar conta</h5>
+                    <div class="mb-3">
+                        <label class="form-label">Nome</label>
+                        <input type="text" class="form-control" @bind="registerModel.Name" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">E-mail</label>
+                        <input type="email" class="form-control" @bind="registerModel.Email" />
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Senha (mín. 6 caracteres)</label>
+                        <input type="password" class="form-control" @bind="registerModel.Password" />
+                    </div>
+                    <button class="btn btn-success w-100" @onclick="DoRegister" disabled="@loading">
+                        @(loading ? "Cadastrando..." : "Cadastrar")
+                    </button>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@code {
+    private bool isLogin = true;
+    private bool loading;
+    private string? errorMessage;
+    private LoginModel loginModel = new();
+    private RegisterModel registerModel = new();
+
+    private async Task DoLogin()
+    {
+        loading = true;
+        errorMessage = null;
+        var error = await Auth.LoginAsync(loginModel);
+        if (error is null)
+            Nav.NavigateTo("/orders");
+        else
+            errorMessage = error;
+        loading = false;
+    }
+
+    private async Task DoRegister()
+    {
+        loading = true;
+        errorMessage = null;
+        var error = await Auth.RegisterAsync(registerModel);
+        if (error is null)
+            Nav.NavigateTo("/orders");
+        else
+            errorMessage = error;
+        loading = false;
+    }
+}

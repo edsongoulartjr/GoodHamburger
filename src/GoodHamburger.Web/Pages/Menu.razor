@@ -1,0 +1,74 @@
+@page "/menu"
+@using GoodHamburger.Web.Models
+@inject HttpClient Http
+
+<PageTitle>Cardápio</PageTitle>
+
+<h2>🍔 Cardápio</h2>
+
+@if (isLoading)
+{
+    <p><em>Carregando...</em></p>
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else
+{
+    <h4 class="mt-3">Sanduíches</h4>
+    <table class="table table-striped">
+        <thead><tr><th>Item</th><th>Preço</th></tr></thead>
+        <tbody>
+            @foreach (var item in Sandwiches)
+            {
+                <tr><td>@item.Name</td><td>R$ @item.Price.ToString("F2")</td></tr>
+            }
+        </tbody>
+    </table>
+
+    <h4 class="mt-3">Acompanhamentos & Bebidas</h4>
+    <table class="table table-striped">
+        <thead><tr><th>Item</th><th>Tipo</th><th>Preço</th></tr></thead>
+        <tbody>
+            @foreach (var item in Others)
+            {
+                <tr><td>@item.Name</td><td>@item.TypeDescription</td><td>R$ @item.Price.ToString("F2")</td></tr>
+            }
+        </tbody>
+    </table>
+
+    <div class="alert alert-info mt-3">
+        <strong>Descontos:</strong><br />
+        🥪 + 🍟 + 🥤 → <strong>20% de desconto</strong><br />
+        🥪 + 🥤 → <strong>15% de desconto</strong><br />
+        🥪 + 🍟 → <strong>10% de desconto</strong>
+    </div>
+}
+
+@code {
+    private List<MenuItemModel> items = [];
+    private bool isLoading = true;
+    private string? errorMessage;
+
+    private IEnumerable<MenuItemModel> Sandwiches =>
+        items.Where(i => i.TypeDescription == "Sandwich");
+    private IEnumerable<MenuItemModel> Others =>
+        items.Where(i => i.TypeDescription != "Sandwich");
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            items = await Http.GetFromJsonAsync<List<MenuItemModel>>("api/menu", ApiJsonOptions.Default) ?? [];
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro ao carregar cardápio: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+}

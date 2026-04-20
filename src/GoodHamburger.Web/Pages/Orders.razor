@@ -1,0 +1,111 @@
+@page "/orders"
+@using GoodHamburger.Web.Models
+@inject HttpClient Http
+@inject NavigationManager Nav
+
+<PageTitle>Pedidos</PageTitle>
+
+<h2>📋 Pedidos</h2>
+
+<button class="btn btn-success mb-3" @onclick='() => Nav.NavigateTo("/orders/new")'>+ Novo Pedido</button>
+
+@if (isLoading)
+{
+    <p><em>Carregando...</em></p>
+}
+else if (errorMessage is not null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+else if (!orders.Any())
+{
+    <p>Nenhum pedido encontrado. Crie o primeiro!</p>
+}
+else
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Criado em</th>
+                <th>Itens</th>
+                <th>Subtotal</th>
+                <th>Desconto</th>
+                <th>Total</th>
+                <th>Ações</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var order in orders)
+            {
+                <tr>
+                    <td><code>@order.Id.ToString()[..8]…</code></td>
+                    <td>@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
+                    <td>@string.Join(", ", order.Items.Select(i => i.MenuItemName))</td>
+                    <td>R$ @order.Subtotal.ToString("F2")</td>
+                    <td class="text-success">@order.DiscountPercentage%</td>
+                    <td><strong>R$ @order.Total.ToString("F2")</strong></td>
+                    <td>
+                        <button class="btn btn-sm btn-primary me-1" @onclick='() => Nav.NavigateTo($"/orders/{order.Id}")'>✏️</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteOrder(order.Id)">🗑️</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@if (successMessage is not null)
+{
+    <div class="alert alert-success mt-2">@successMessage</div>
+}
+
+@code {
+    private List<OrderModel> orders = [];
+    private bool isLoading = true;
+    private string? errorMessage;
+    private string? successMessage;
+
+    protected override async Task OnInitializedAsync() => await LoadOrders();
+
+    private async Task LoadOrders()
+    {
+        isLoading = true;
+        errorMessage = null;
+        try
+        {
+            orders = await Http.GetFromJsonAsync<List<OrderModel>>("api/orders", ApiJsonOptions.Default) ?? [];
+        }
+        catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            Nav.NavigateTo("/login");
+            return;
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Erro ao carregar pedidos: {ex.Message}";
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    private async Task DeleteOrder(Guid id)
+    {
+        var response = await Http.DeleteAsync($"api/orders/{id}");
+        if (response.IsSuccessStatusCode)
+        {
+            successMessage = "Pedido removido com sucesso.";
+            await LoadOrders();
+        }
+        else if (response.StatusCode == System.Net.HttpStatusCode.Unauthorized)
+        {
+            Nav.NavigateTo("/login");
+        }
+        else
+        {
+            errorMessage = "Erro ao remover pedido.";
+        }
+    }
+}
