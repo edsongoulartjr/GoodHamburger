@@ -3,15 +3,22 @@
 @inject HttpClient Http
 @inject NavigationManager Nav
 
-<PageTitle>Pedidos</PageTitle>
+<PageTitle>Pedidos — Good Hamburger</PageTitle>
 
-<h2>📋 Pedidos</h2>
-
-<button class="btn btn-success mb-3" @onclick='() => Nav.NavigateTo("/orders/new")'>+ Novo Pedido</button>
+<div class="d-flex align-items-center justify-content-between mb-3">
+    <h2 class="mb-0">📋 Pedidos</h2>
+    <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/orders/new")'>
+        + Novo Pedido
+    </button>
+</div>
 
 @if (isLoading)
 {
-    <p><em>Carregando...</em></p>
+    <div class="gh-section">
+        <p class="skeleton" style="width:100%">&nbsp;</p>
+        <p class="skeleton mt-2" style="width:100%">&nbsp;</p>
+        <p class="skeleton mt-2" style="width:80%">&nbsp;</p>
+    </div>
 }
 else if (errorMessage is not null)
 {
@@ -19,45 +26,68 @@ else if (errorMessage is not null)
 }
 else if (!orders.Any())
 {
-    <p>Nenhum pedido encontrado. Crie o primeiro!</p>
+    <div class="gh-section text-center py-5 text-muted">
+        <div style="font-size:2.5rem">🛒</div>
+        <p class="mt-2 mb-3">Nenhum pedido encontrado.</p>
+        <button class="btn btn-primary" @onclick='() => Nav.NavigateTo("/orders/new")'>Criar primeiro pedido</button>
+    </div>
 }
 else
 {
-    <table class="table table-hover">
-        <thead>
-            <tr>
-                <th>ID</th>
-                <th>Criado em</th>
-                <th>Itens</th>
-                <th>Subtotal</th>
-                <th>Desconto</th>
-                <th>Total</th>
-                <th>Ações</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var order in orders)
-            {
+    <div class="gh-section p-0">
+        <table class="table table-hover mb-0">
+            <thead>
                 <tr>
-                    <td><code>@order.Id.ToString()[..8]…</code></td>
-                    <td>@order.CreatedAt.ToLocalTime().ToString("dd/MM/yyyy HH:mm")</td>
-                    <td>@string.Join(", ", order.Items.Select(i => i.MenuItemName))</td>
-                    <td>R$ @order.Subtotal.ToString("F2")</td>
-                    <td class="text-success">@order.DiscountPercentage%</td>
-                    <td><strong>R$ @order.Total.ToString("F2")</strong></td>
-                    <td>
-                        <button class="btn btn-sm btn-primary me-1" @onclick='() => Nav.NavigateTo($"/orders/{order.Id}")'>✏️</button>
-                        <button class="btn btn-sm btn-danger" @onclick="() => DeleteOrder(order.Id)">🗑️</button>
-                    </td>
+                    <th>ID</th>
+                    <th>Data</th>
+                    <th>Itens</th>
+                    <th class="col-price">Subtotal</th>
+                    <th class="col-price">Desconto</th>
+                    <th class="col-price">Total</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var order in orders)
+                {
+                    <tr>
+                        <td><code style="font-size:.8rem;color:#6b7280">@order.Id.ToString()[..8]…</code></td>
+                        <td style="white-space:nowrap;color:#6b7280;font-size:.85rem">
+                            @order.CreatedAt.ToLocalTime().ToString("dd/MM/yy HH:mm")
+                        </td>
+                        <td style="max-width:220px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">
+                            @string.Join(", ", order.Items.Select(i => i.MenuItemName))
+                        </td>
+                        <td class="col-price price-value">R$&nbsp;@order.Subtotal.ToString("F2")</td>
+                        <td class="col-price">
+                            @if (order.DiscountPercentage > 0)
+                            {
+                                <span class="discount-badge">-@order.DiscountPercentage%</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="col-price price-value price-total">R$&nbsp;@order.Total.ToString("F2")</td>
+                        <td style="white-space:nowrap">
+                            <button class="btn btn-sm btn-outline-secondary me-1"
+                                    title="Editar"
+                                    @onclick='() => Nav.NavigateTo($"/orders/{order.Id}")'>✏️</button>
+                            <button class="btn btn-sm btn-outline-danger"
+                                    title="Excluir"
+                                    @onclick="() => DeleteOrder(order.Id)">🗑️</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 }
 
 @if (successMessage is not null)
 {
-    <div class="alert alert-success mt-2">@successMessage</div>
+    <div class="alert alert-success mt-2">✅ @successMessage</div>
 }
 
 @code {
@@ -74,7 +104,8 @@ else
         errorMessage = null;
         try
         {
-            orders = await Http.GetFromJsonAsync<List<OrderModel>>("api/orders", ApiJsonOptions.Default) ?? [];
+            var paged = await Http.GetFromJsonAsync<PagedResultModel<OrderModel>>("api/orders?page=1&pageSize=100", ApiJsonOptions.Default);
+            orders = paged?.Items ?? [];
         }
         catch (HttpRequestException ex) when (ex.StatusCode == System.Net.HttpStatusCode.Unauthorized)
         {

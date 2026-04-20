@@ -5,16 +5,36 @@ using GoodHamburger.Infrastructure.Data;
 using GoodHamburger.Infrastructure.Repositories;
 using GoodHamburger.Infrastructure.Security;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace GoodHamburger.Infrastructure;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, string connectionString)
+    /// <summary>
+    /// Registra a infraestrutura. O provider é selecionado via "Database:Provider" no appsettings.
+    /// Valores aceitos: "Sqlite" (padrão), "SqlServer", "PostgreSQL".
+    /// </summary>
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services,
+        string connectionString,
+        string provider = "Sqlite")
     {
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlite(connectionString));
+        {
+            _ = provider.ToLowerInvariant() switch
+            {
+                "sqlserver" => options.UseSqlServer(connectionString, sql =>
+                    sql.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)),
+
+                "postgresql" or "postgres" => options.UseNpgsql(connectionString, npg =>
+                    npg.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName)),
+
+                _ => options.UseSqlite(connectionString, sqlite =>
+                    sqlite.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName))
+            };
+        });
 
         // Repositories
         services.AddScoped<IMenuRepository, MenuRepository>();
@@ -26,9 +46,9 @@ public static class DependencyInjection
         services.AddScoped<ITokenService, JwtTokenService>();
 
         // Services
-        services.AddScoped<MenuService>();
-        services.AddScoped<OrderService>();
-        services.AddScoped<AuthService>();
+        services.AddScoped<IMenuService, MenuService>();
+        services.AddScoped<IOrderService, OrderService>();
+        services.AddScoped<IAuthService, AuthService>();
 
         return services;
     }

@@ -2,13 +2,17 @@
 @using GoodHamburger.Web.Models
 @inject HttpClient Http
 
-<PageTitle>Cardápio</PageTitle>
+<PageTitle>Cardápio — Good Hamburger</PageTitle>
 
 <h2>🍔 Cardápio</h2>
 
 @if (isLoading)
 {
-    <p><em>Carregando...</em></p>
+    <div class="gh-section">
+        <p class="skeleton" style="width:40%">&nbsp;</p>
+        <p class="skeleton mt-2" style="width:60%">&nbsp;</p>
+        <p class="skeleton mt-2" style="width:50%">&nbsp;</p>
+    </div>
 }
 else if (errorMessage is not null)
 {
@@ -16,33 +20,55 @@ else if (errorMessage is not null)
 }
 else
 {
-    <h4 class="mt-3">Sanduíches</h4>
-    <table class="table table-striped">
-        <thead><tr><th>Item</th><th>Preço</th></tr></thead>
-        <tbody>
-            @foreach (var item in Sandwiches)
-            {
-                <tr><td>@item.Name</td><td>R$ @item.Price.ToString("F2")</td></tr>
-            }
-        </tbody>
-    </table>
+    <div class="gh-section">
+        <div class="gh-section-title">🥪 Sanduíches</div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th class="col-price">Preço</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Sandwiches)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td class="col-price price-value">R$&nbsp;@item.Price.ToString("F2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
-    <h4 class="mt-3">Acompanhamentos & Bebidas</h4>
-    <table class="table table-striped">
-        <thead><tr><th>Item</th><th>Tipo</th><th>Preço</th></tr></thead>
-        <tbody>
-            @foreach (var item in Others)
-            {
-                <tr><td>@item.Name</td><td>@item.TypeDescription</td><td>R$ @item.Price.ToString("F2")</td></tr>
-            }
-        </tbody>
-    </table>
+    <div class="gh-section">
+        <div class="gh-section-title">🍟 Acompanhamentos &amp; 🥤 Bebidas</div>
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th>Item</th>
+                    <th class="col-price">Preço</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Others)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td class="col-price price-value">R$&nbsp;@item.Price.ToString("F2")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 
-    <div class="alert alert-info mt-3">
-        <strong>Descontos:</strong><br />
-        🥪 + 🍟 + 🥤 → <strong>20% de desconto</strong><br />
-        🥪 + 🥤 → <strong>15% de desconto</strong><br />
-        🥪 + 🍟 → <strong>10% de desconto</strong>
+    <div class="gh-discount-box">
+        <strong>🎉 Descontos disponíveis</strong>
+        <ul class="mb-0 mt-2" style="line-height:1.9">
+            <li>🥪 + 🍟 + 🥤 → <strong>20% de desconto</strong></li>
+            <li>🥪 + 🥤 → <strong>15% de desconto</strong></li>
+            <li>🥪 + 🍟 → <strong>10% de desconto</strong></li>
+        </ul>
     </div>
 }
 
@@ -72,3 +98,4 @@ else
         }
     }
 }
+

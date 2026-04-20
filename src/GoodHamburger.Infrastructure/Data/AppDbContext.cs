@@ -54,6 +54,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         {
             e.HasKey(oi => oi.Id);
             e.Property(oi => oi.UnitPrice).HasColumnType("decimal(18,2)");
+            e.Property(oi => oi.MenuItemType).HasConversion<int>();
             e.HasOne(oi => oi.MenuItem)
              .WithMany()
              .HasForeignKey(oi => oi.MenuItemId)

@@ -1,11 +1,11 @@
-using GoodHamburger.Application.Services;
+using GoodHamburger.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 
 namespace GoodHamburger.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class MenuController(MenuService menuService) : ControllerBase
+public class MenuController(IMenuService menuService) : ControllerBase
 {
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status200OK)]

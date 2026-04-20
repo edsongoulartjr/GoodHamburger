@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using GoodHamburger.Application.DTOs;
-using GoodHamburger.Application.Services;
+using GoodHamburger.Application.Interfaces;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,17 +9,17 @@ namespace GoodHamburger.API.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize]
-public class OrdersController(OrderService orderService) : ControllerBase
+public class OrdersController(IOrderService orderService) : ControllerBase
 {
     private Guid CurrentUserId =>
         Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
 
     [HttpGet]
-    [ProducesResponseType(typeof(IEnumerable<OrderDto>), StatusCodes.Status200OK)]
-    public async Task<IActionResult> GetAll()
+    [ProducesResponseType(typeof(PagedResult<OrderDto>), StatusCodes.Status200OK)]
+    public async Task<IActionResult> GetAll([FromQuery] int page = 1, [FromQuery] int pageSize = 10)
     {
-        var orders = await orderService.GetAllByUserAsync(CurrentUserId);
-        return Ok(orders);
+        var result = await orderService.GetAllByUserAsync(CurrentUserId, page, pageSize);
+        return Ok(result);
     }
 
     [HttpGet("{id:guid}")]

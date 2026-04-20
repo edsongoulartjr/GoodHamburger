@@ -127,10 +127,7 @@ public class OrderServiceValidationTests
         var order = new Order(TestUserId);
         foreach (var mi in menuItems)
         {
-            var item = new OrderItem(mi.Id, mi.Price);
-            typeof(OrderItem)
-                .GetProperty(nameof(OrderItem.MenuItem))!
-                .SetValue(item, mi);
+            var item = new OrderItem(mi.Id, mi.Type, mi.Price);
             order.AddItem(item);
         }
         return order;

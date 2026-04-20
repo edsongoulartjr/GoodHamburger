@@ -20,11 +20,8 @@ public class OrderDiscountTests
         var order = new Order(Guid.NewGuid());
         foreach (var mi in menuItems)
         {
-            var item = new OrderItem(mi.Id, mi.Price);
-            // Set navigation property via reflection for testing
-            typeof(OrderItem)
-                .GetProperty(nameof(OrderItem.MenuItem))!
-                .SetValue(item, mi);
+            // Agora o construtor recebe MenuItemType diretamente — sem necessidade de reflection
+            var item = new OrderItem(mi.Id, mi.Type, mi.Price);
             order.AddItem(item);
         }
         return order;

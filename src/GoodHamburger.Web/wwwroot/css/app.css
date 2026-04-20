@@ -1,6 +1,277 @@
-html, body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+/* ============================================================
+   GOOD HAMBURGER — Design System
+   ============================================================ */
+
+/* ── Variables ─────────────────────────────────────────────── */
+:root {
+    --gh-brand:        #e65c00;
+    --gh-brand-dark:   #c44f00;
+    --gh-brand-light:  #fff3ec;
+    --gh-sidebar-bg:   #1a1a2e;
+    --gh-sidebar-text: #e0e0e0;
+    --gh-radius:       0.75rem;
+    --gh-shadow:       0 2px 12px rgba(0,0,0,.08);
+    --gh-shadow-hover: 0 6px 24px rgba(0,0,0,.14);
+    --gh-font:         'Inter', 'Helvetica Neue', Arial, sans-serif;
 }
+
+/* ── Base ───────────────────────────────────────────────────── */
+html, body {
+    font-family: var(--gh-font);
+    font-size: 15px;
+    background-color: #f5f6fa;
+    color: #1e1e2e;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: 700;
+    letter-spacing: -0.01em;
+}
+
+a, .btn-link {
+    color: var(--gh-brand);
+    text-decoration: none;
+}
+a:hover { color: var(--gh-brand-dark); }
+
+/* ── Sidebar / NavMenu ──────────────────────────────────────── */
+.sidebar {
+    background: var(--gh-sidebar-bg) !important;
+}
+
+.top-row.navbar {
+    background: var(--gh-sidebar-bg) !important;
+    border-bottom: 1px solid rgba(255,255,255,.06);
+}
+
+.navbar-brand {
+    font-weight: 700;
+    font-size: 1.1rem;
+    color: #fff !important;
+    letter-spacing: -0.02em;
+}
+
+.nav-scrollable .nav-link {
+    color: var(--gh-sidebar-text);
+    border-radius: 0.5rem;
+    margin: 2px 8px;
+    padding: 0.5rem 0.75rem;
+    transition: background .15s, color .15s;
+    font-size: .9rem;
+    font-weight: 500;
+}
+.nav-scrollable .nav-link:hover,
+.nav-scrollable .nav-link.active {
+    background: rgba(230, 92, 0, .18);
+    color: #ff8c42 !important;
+}
+.nav-scrollable .nav-link.active { font-weight: 700; }
+
+/* ── Content area ───────────────────────────────────────────── */
+.content {
+    padding: 1.5rem 2rem;
+}
+
+/* ── Page header ────────────────────────────────────────────── */
+h2 {
+    font-size: 1.6rem;
+    margin-bottom: 1.25rem;
+    color: #1a1a2e;
+}
+
+/* ── Cards ──────────────────────────────────────────────────── */
+.card {
+    border: none;
+    border-radius: var(--gh-radius);
+    box-shadow: var(--gh-shadow);
+    transition: box-shadow .2s;
+}
+.card:hover { box-shadow: var(--gh-shadow-hover); }
+
+.card-title { font-weight: 700; }
+
+/* ── Section card (used in Menu, etc.) ──────────────────────── */
+.gh-section {
+    background: #fff;
+    border-radius: var(--gh-radius);
+    box-shadow: var(--gh-shadow);
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 1.5rem;
+}
+.gh-section-title {
+    font-size: 1rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: .06em;
+    color: var(--gh-brand);
+    margin-bottom: 1rem;
+    padding-bottom: .5rem;
+    border-bottom: 2px solid var(--gh-brand-light);
+}
+
+/* ── Tables ─────────────────────────────────────────────────── */
+.table {
+    margin-bottom: 0;
+    font-size: .9rem;
+}
+.table thead th {
+    background: #f8f9fb;
+    font-weight: 600;
+    font-size: .78rem;
+    text-transform: uppercase;
+    letter-spacing: .05em;
+    color: #6b7280;
+    border-bottom: 1px solid #e9ecef;
+    padding: .65rem .9rem;
+}
+.table tbody td {
+    padding: .65rem .9rem;
+    vertical-align: middle;
+    border-color: #f0f0f5;
+}
+.table tbody tr:last-child td { border-bottom: none; }
+.table-hover tbody tr:hover { background: #fafafa; }
+
+/* Price column — right-aligned */
+.col-price { text-align: right !important; white-space: nowrap; }
+th.col-price { text-align: right !important; }
+
+/* ── Buttons ────────────────────────────────────────────────── */
+.btn-primary {
+    background-color: var(--gh-brand);
+    border-color: var(--gh-brand);
+    font-weight: 600;
+    border-radius: .5rem;
+}
+.btn-primary:hover, .btn-primary:focus {
+    background-color: var(--gh-brand-dark);
+    border-color: var(--gh-brand-dark);
+}
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus,
+.form-control:focus, .form-check-input:focus {
+    box-shadow: 0 0 0 .15rem rgba(230,92,0,.25);
+}
+.btn-sm { border-radius: .4rem; font-size: .8rem; }
+
+/* ── Badges ─────────────────────────────────────────────────── */
+.badge { font-weight: 600; border-radius: .35rem; }
+
+/* ── Discount badge ─────────────────────────────────────────── */
+.discount-badge {
+    display: inline-block;
+    background: #d1fae5;
+    color: #065f46;
+    font-size: .75rem;
+    font-weight: 700;
+    padding: .2rem .5rem;
+    border-radius: .35rem;
+}
+
+/* ── Price text ─────────────────────────────────────────────── */
+.price-value { font-variant-numeric: tabular-nums; font-weight: 600; }
+.price-total { color: var(--gh-brand); font-size: 1.05rem; }
+
+/* ── Alerts ─────────────────────────────────────────────────── */
+.alert { border-radius: var(--gh-radius); border: none; font-size: .9rem; }
+.alert-danger  { background: #fee2e2; color: #991b1b; }
+.alert-success { background: #d1fae5; color: #065f46; }
+.alert-info    { background: var(--gh-brand-light); color: #7c2d12; }
+
+/* ── Loading skeleton ───────────────────────────────────────── */
+.skeleton {
+    display: inline-block;
+    height: 1em;
+    background: linear-gradient(90deg,#e8e8e8 25%,#f5f5f5 50%,#e8e8e8 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.4s infinite;
+    border-radius: .35rem;
+}
+@keyframes shimmer {
+    0%   { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+}
+
+/* ── Home hero ──────────────────────────────────────────────── */
+.gh-hero {
+    background: linear-gradient(135deg, var(--gh-brand) 0%, #f97316 100%);
+    color: #fff;
+    border-radius: var(--gh-radius);
+    padding: 2rem 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--gh-shadow-hover);
+}
+.gh-hero h1 { color: #fff; font-size: 2rem; }
+.gh-hero p  { opacity: .9; font-size: 1.05rem; }
+
+/* ── Discount info box ──────────────────────────────────────── */
+.gh-discount-box {
+    background: var(--gh-brand-light);
+    border-left: 4px solid var(--gh-brand);
+    border-radius: 0 var(--gh-radius) var(--gh-radius) 0;
+    padding: 1rem 1.25rem;
+    font-size: .9rem;
+}
+.gh-discount-box strong { color: var(--gh-brand-dark); }
+
+/* ── Blazor boilerplate ─────────────────────────────────────── */
+#blazor-error-ui {
+    color-scheme: light only;
+    background: #fef3c7;
+    color: #78350f;
+    bottom: 0;
+    box-shadow: 0 -1px 4px rgba(0,0,0,.15);
+    box-sizing: border-box;
+    display: none;
+    left: 0;
+    padding: .6rem 1.25rem .7rem;
+    position: fixed;
+    width: 100%;
+    z-index: 1000;
+    font-size: .9rem;
+}
+#blazor-error-ui .dismiss { cursor: pointer; position: absolute; right: .75rem; top: .5rem; }
+
+.blazor-error-boundary {
+    background: #b32121;
+    padding: 1rem 1rem 1rem 3.7rem;
+    color: white;
+    border-radius: var(--gh-radius);
+}
+.blazor-error-boundary::after { content: "Ocorreu um erro."; }
+
+.loading-progress {
+    position: relative; display: block;
+    width: 8rem; height: 8rem;
+    margin: 20vh auto 1rem auto;
+}
+.loading-progress circle {
+    fill: none; stroke: #e0e0e0;
+    stroke-width: .6rem;
+    transform-origin: 50% 50%;
+    transform: rotate(-90deg);
+}
+.loading-progress circle:last-child {
+    stroke: var(--gh-brand);
+    stroke-dasharray: calc(3.141 * var(--blazor-load-percentage, 0%) * 0.8), 500%;
+    transition: stroke-dasharray .05s ease-in-out;
+}
+.loading-progress-text {
+    position: absolute; text-align: center; font-weight: 700;
+    inset: calc(20vh + 3.25rem) 0 auto .2rem;
+}
+.loading-progress-text:after { content: var(--blazor-load-percentage-text, "Carregando"); }
+
+code { color: var(--gh-brand-dark); }
+
+.valid.modified:not([type=checkbox]) { outline: 1px solid #22c55e; }
+.invalid { outline: 1px solid #ef4444; }
+.validation-message { color: #ef4444; font-size: .85rem; }
+
+.form-floating > .form-control-plaintext::placeholder,
+.form-floating > .form-control::placeholder { color: var(--bs-secondary-color); text-align: end; }
+.form-floating > .form-control-plaintext:focus::placeholder,
+.form-floating > .form-control:focus::placeholder { text-align: start; }
+
 
 h1:focus {
     outline: none;

@@ -1,12 +1,14 @@
 using GoodHamburger.Application.DTOs;
-using GoodHamburger.Application.Services;
+using GoodHamburger.Application.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace GoodHamburger.API.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class AuthController(AuthService authService) : ControllerBase
+[EnableRateLimiting("auth")]
+public class AuthController(IAuthService authService) : ControllerBase
 {
     /// <summary>Registrar novo usuário</summary>
     [HttpPost("register")]

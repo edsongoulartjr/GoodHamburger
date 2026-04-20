@@ -1,9 +1,10 @@
 using GoodHamburger.Application.DTOs;
+using GoodHamburger.Application.Interfaces;
 using GoodHamburger.Domain.Interfaces;
 
 namespace GoodHamburger.Application.Services;
 
-public class MenuService(IMenuRepository menuRepository)
+public class MenuService(IMenuRepository menuRepository) : IMenuService
 {
     public async Task<IEnumerable<MenuItemDto>> GetMenuAsync()
     {

@@ -5,70 +5,90 @@
 @inject HttpClient Http
 @inject NavigationManager Nav
 
-<PageTitle>@(IsNew ? "Novo Pedido" : "Editar Pedido")</PageTitle>
+<PageTitle>@(IsNew ? "Novo Pedido" : "Editar Pedido") — Good Hamburger</PageTitle>
 
-<h2>@(IsNew ? "🆕 Novo Pedido" : "✏️ Editar Pedido")</h2>
+<div class="d-flex align-items-center gap-2 mb-3">
+    <button class="btn btn-sm btn-outline-secondary" @onclick='() => Nav.NavigateTo("/orders")'>← Voltar</button>
+    <h2 class="mb-0">@(IsNew ? "🆕 Novo Pedido" : "✏️ Editar Pedido")</h2>
+</div>
 
 @if (isLoading)
 {
-    <p><em>Carregando...</em></p>
+    <div class="gh-section">
+        <p class="skeleton" style="width:55%">&nbsp;</p>
+        <p class="skeleton mt-2" style="width:40%">&nbsp;</p>
+        <p class="skeleton mt-2" style="width:70%">&nbsp;</p>
+    </div>
 }
 else
 {
-    <div class="row">
-        <div class="col-md-6">
-            <h5>Selecione os itens:</h5>
-            @foreach (var group in menuGroups)
-            {
-                <h6 class="mt-3 text-secondary">@group.Key</h6>
-                @foreach (var item in group.Value)
+    <div class="row g-3">
+        <div class="col-lg-6">
+            <div class="gh-section">
+                <div class="gh-section-title">🛒 Selecione os itens</div>
+                @foreach (var group in menuGroups)
                 {
-                    <div class="form-check">
-                        <input class="form-check-input" type="checkbox"
-                               id="@item.Id"
-                               checked="@selectedIds.Contains(item.Id)"
-                               @onchange="e => ToggleItem(item.Id, (bool)e.Value!)" />
-                        <label class="form-check-label" for="@item.Id">
-                            @item.Name — <strong>R$ @item.Price.ToString("F2")</strong>
-                        </label>
-                    </div>
+                    <p class="mb-1 mt-3" style="font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#6b7280">
+                        @GroupLabel(group.Key)
+                    </p>
+                    @foreach (var item in group.Value)
+                    {
+                        <div class="form-check py-1">
+                            <input class="form-check-input" type="checkbox"
+                                   id="@item.Id"
+                                   checked="@selectedIds.Contains(item.Id)"
+                                   @onchange="e => ToggleItem(item.Id, (bool)e.Value!)" />
+                            <label class="form-check-label d-flex justify-content-between" for="@item.Id">
+                                <span>@item.Name</span>
+                                <span class="price-value ms-2" style="color:#6b7280">R$&nbsp;@item.Price.ToString("F2")</span>
+                            </label>
+                        </div>
+                    }
                 }
-            }
+            </div>
         </div>
 
-        <div class="col-md-6">
-            <h5>Resumo do pedido:</h5>
-            @if (selectedItems.Any())
-            {
-                <ul class="list-group mb-3">
-                    @foreach (var item in selectedItems)
-                    {
-                        <li class="list-group-item d-flex justify-content-between">
-                            @item.Name
-                            <span>R$ @item.Price.ToString("F2")</span>
-                        </li>
-                    }
-                    <li class="list-group-item d-flex justify-content-between">
-                        <span>Subtotal</span>
-                        <span>R$ @Subtotal.ToString("F2")</span>
-                    </li>
+        <div class="col-lg-6">
+            <div class="gh-section">
+                <div class="gh-section-title">📄 Resumo</div>
+                @if (selectedItems.Any())
+                {
+                    <ul class="list-group list-group-flush mb-3">
+                        @foreach (var item in selectedItems)
+                        {
+                            <li class="list-group-item d-flex justify-content-between px-0">
+                                <span>@item.Name</span>
+                                <span class="price-value">R$&nbsp;@item.Price.ToString("F2")</span>
+                            </li>
+                        }
+                    </ul>
+                    <div class="d-flex justify-content-between py-1 border-top">
+                        <span class="text-muted">Subtotal</span>
+                        <span class="price-value">R$&nbsp;@Subtotal.ToString("F2")</span>
+                    </div>
                     @if (DiscountPercent > 0)
                     {
-                        <li class="list-group-item d-flex justify-content-between text-success">
-                            <span>Desconto (@DiscountPercent%)</span>
-                            <span>- R$ @Discount.ToString("F2")</span>
-                        </li>
+                        <div class="d-flex justify-content-between py-1">
+                            <span>
+                                Desconto
+                                <span class="discount-badge ms-1">@DiscountPercent%</span>
+                            </span>
+                            <span class="price-value" style="color:#065f46">- R$&nbsp;@Discount.ToString("F2")</span>
+                        </div>
                     }
-                    <li class="list-group-item d-flex justify-content-between fw-bold">
-                        <span>Total</span>
-                        <span>R$ @Total.ToString("F2")</span>
-                    </li>
-                </ul>
-            }
-            else
-            {
-                <p class="text-muted">Nenhum item selecionado.</p>
-            }
+                    <div class="d-flex justify-content-between py-2 border-top mt-1">
+                        <span class="fw-700">Total</span>
+                        <span class="price-value price-total fw-bold">R$&nbsp;@Total.ToString("F2")</span>
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted py-4">
+                        <div style="font-size:2rem">🛒</div>
+                        <p class="mb-0 mt-1">Nenhum item selecionado.</p>
+                    </div>
+                }
+            </div>
         </div>
     </div>
 
@@ -77,11 +97,11 @@ else
         <div class="alert alert-danger mt-2">@errorMessage</div>
     }
 
-    <div class="mt-3">
-        <button class="btn btn-primary me-2" @onclick="Submit" disabled="@(!selectedIds.Any())">
+    <div class="mt-2 d-flex gap-2">
+        <button class="btn btn-primary" @onclick="Submit" disabled="@(!selectedIds.Any())">
             @(IsNew ? "Criar Pedido" : "Salvar Alterações")
         </button>
-        <button class="btn btn-secondary" @onclick='() => Nav.NavigateTo("/orders")'>Cancelar</button>
+        <button class="btn btn-outline-secondary" @onclick='() => Nav.NavigateTo("/orders")'>Cancelar</button>
     </div>
 }
 
@@ -145,6 +165,14 @@ else
         if (checked_) selectedIds.Add(id);
         else selectedIds.Remove(id);
     }
+
+    private static string GroupLabel(string type) => type switch
+    {
+        "Sandwich"  => "🥪 Sanduíches",
+        "SideDish"  => "🍟 Acompanhamentos",
+        "Beverage"  => "🥤 Bebidas",
+        _           => type
+    };
 
     private async Task Submit()
     {

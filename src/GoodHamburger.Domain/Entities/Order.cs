@@ -46,9 +46,9 @@ public class Order
 
     private void RecalculateDiscount()
     {
-        bool hasSandwich = _items.Any(i => i.MenuItem?.Type == MenuItemType.Sandwich);
-        bool hasSide = _items.Any(i => i.MenuItem?.Type == MenuItemType.SideDish);
-        bool hasBeverage = _items.Any(i => i.MenuItem?.Type == MenuItemType.Beverage);
+        bool hasSandwich = _items.Any(i => i.MenuItemType == MenuItemType.Sandwich);
+        bool hasSide = _items.Any(i => i.MenuItemType == MenuItemType.SideDish);
+        bool hasBeverage = _items.Any(i => i.MenuItemType == MenuItemType.Beverage);
 
         DiscountPercentage = (hasSandwich, hasSide, hasBeverage) switch
         {

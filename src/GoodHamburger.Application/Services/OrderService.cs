@@ -1,4 +1,5 @@
 using GoodHamburger.Application.DTOs;
+using GoodHamburger.Application.Interfaces;
 using GoodHamburger.Domain.Entities;
 using GoodHamburger.Domain.Enums;
 using GoodHamburger.Domain.Exceptions;
@@ -6,12 +7,16 @@ using GoodHamburger.Domain.Interfaces;
 
 namespace GoodHamburger.Application.Services;
 
-public class OrderService(IOrderRepository orderRepository, IMenuRepository menuRepository)
+public class OrderService(IOrderRepository orderRepository, IMenuRepository menuRepository) : IOrderService
 {
-    public async Task<IEnumerable<OrderDto>> GetAllByUserAsync(Guid userId)
+    public async Task<PagedResult<OrderDto>> GetAllByUserAsync(Guid userId, int page, int pageSize)
     {
-        var orders = await orderRepository.GetAllByUserAsync(userId);
-        return orders.Select(MapToDto);
+        page = Math.Max(1, page);
+        pageSize = Math.Clamp(pageSize, 1, 50);
+
+        var (orders, totalCount) = await orderRepository.GetAllByUserPagedAsync(userId, page, pageSize);
+        var dtos = orders.Select(MapToDto).ToList().AsReadOnly();
+        return new PagedResult<OrderDto>(dtos, page, pageSize, totalCount);
     }
 
     public async Task<OrderDto> GetByIdAsync(Guid id, Guid userId)
@@ -30,7 +35,7 @@ public class OrderService(IOrderRepository orderRepository, IMenuRepository menu
         var order = new Order(userId);
         foreach (var menuItem in menuItems)
         {
-            var item = new OrderItem(menuItem.Id, menuItem.Price);
+            var item = new OrderItem(menuItem.Id, menuItem.Type, menuItem.Price);
             order.AddItem(item);
         }
 
@@ -49,7 +54,7 @@ public class OrderService(IOrderRepository orderRepository, IMenuRepository menu
 
         var menuItems = await ValidateAndGetMenuItems(request.MenuItemIds);
 
-        var newItems = menuItems.Select(mi => new OrderItem(mi.Id, mi.Price)).ToList();
+        var newItems = menuItems.Select(mi => new OrderItem(mi.Id, mi.Type, mi.Price)).ToList();
         order.ReplaceItems(newItems);
 
         await orderRepository.UpdateAsync(order);
@@ -100,7 +105,6 @@ public class OrderService(IOrderRepository orderRepository, IMenuRepository menu
 
     private static OrderDto MapToDto(Order order)
     {
-        order.RefreshDiscount();
         return new OrderDto(
             order.Id,
             order.CreatedAt,

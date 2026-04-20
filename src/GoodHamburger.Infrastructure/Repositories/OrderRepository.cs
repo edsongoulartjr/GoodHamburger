@@ -16,6 +16,14 @@ public class OrderRepository(AppDbContext db) : IOrderRepository
     public async Task<IEnumerable<Order>> GetAllByUserAsync(Guid userId) =>
         await OrdersWithItems.AsNoTracking().Where(o => o.UserId == userId).ToListAsync();
 
+    public async Task<(IEnumerable<Order> Orders, int TotalCount)> GetAllByUserPagedAsync(Guid userId, int page, int pageSize)
+    {
+        var query = OrdersWithItems.AsNoTracking().Where(o => o.UserId == userId).OrderByDescending(o => o.CreatedAt);
+        var total = await db.Orders.CountAsync(o => o.UserId == userId);
+        var items = await query.Skip((page - 1) * pageSize).Take(pageSize).ToListAsync();
+        return (items, total);
+    }
+
     public async Task<Order?> GetByIdAsync(Guid id) =>
         await OrdersWithItems.AsNoTracking().FirstOrDefaultAsync(o => o.Id == id);
 
